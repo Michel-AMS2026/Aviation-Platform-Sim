@@ -260,7 +260,12 @@ function compute(params) {
   for (const o of AIRPORTS) {
     for (const d of AIRPORTS) {
       if (o === d) continue;
-      if (HUB_LIST.includes(o) && HUB_LIST.includes(d)) continue;
+if (HUB_LIST.includes(o) && HUB_LIST.includes(d)) continue;
+const oIsLH = LH_AIRPORTS.has(o);
+const dIsLH = LH_AIRPORTS.has(d);
+if (oIsLH && dIsLH) continue;
+if (HUB_LIST.includes(o) && dIsLH) continue;
+if (oIsLH && HUB_LIST.includes(d)) continue;
       const isThin = !directPairs.has(o + '|' + d);
 
       for (const h of HUB_LIST) {
@@ -299,8 +304,13 @@ function compute(params) {
   let thinBase = 0;
   for (const o of AIRPORTS) {
     for (const d of AIRPORTS) {
-      if (o === d) continue;
-      if (HUB_LIST.includes(o) && HUB_LIST.includes(d)) continue;
+    if (o === d) continue;
+if (HUB_LIST.includes(o) && HUB_LIST.includes(d)) continue;
+const oIsLH = LH_AIRPORTS.has(o);
+const dIsLH = LH_AIRPORTS.has(d);
+if (oIsLH && dIsLH) continue;
+if (HUB_LIST.includes(o) && dIsLH) continue;
+if (oIsLH && HUB_LIST.includes(d)) continue;
       if (!directPairs.has(o + '|' + d)) thinBase++;
     }
   }
