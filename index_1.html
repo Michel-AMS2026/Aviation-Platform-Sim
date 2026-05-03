@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2B Aviation Coordination Platform — Interactive Simulator</title>
+<style>
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f5f3;
+    --color-background-tertiary: #ebebe7;
+    --color-background-info: #e6f1fb;
+    --color-background-success: #e1f5ee;
+    --color-background-warning: #faeeda;
+    --color-text-primary: #1a1a2e;
+    --color-text-secondary: #5f5e5a;
+    --color-text-tertiary: #888780;
+    --color-text-info: #185fa5;
+    --color-text-success: #0f6e56;
+    --color-text-warning: #854f0b;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.20);
+    --color-border-primary: rgba(0,0,0,0.30);
+    --color-border-info: #b5d4f4;
+    --color-border-success: #9fe1cb;
+    --color-border-warning: #fac775;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background-primary: #1a1a1a;
+      --color-background-secondary: #262626;
+      --color-background-tertiary: #1a1a1a;
+      --color-background-info: #0c447c;
+      --color-background-success: #085041;
+      --color-background-warning: #633806;
+      --color-text-primary: #f5f5f3;
+      --color-text-secondary: #a8a8a3;
+      --color-text-tertiary: #737370;
+      --color-text-info: #85b7eb;
+      --color-text-success: #5dcaa5;
+      --color-text-warning: #ef9f27;
+      --color-border-tertiary: rgba(255,255,255,0.12);
+      --color-border-secondary: rgba(255,255,255,0.20);
+      --color-border-primary: rgba(255,255,255,0.30);
+      --color-border-info: #185fa5;
+      --color-border-success: #0f6e56;
+      --color-border-warning: #854f0b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-text-primary);
+    background: var(--color-background-tertiary);
+    margin: 0;
+    padding: 2rem 1rem;
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem 2rem 2rem;
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+  h1 { font-size: 22px; font-weight: 500; margin: 0 0 0.25rem; }
+  .subtitle { font-size: 14px; color: var(--color-text-secondary); margin: 0 0 1.5rem; }
+  select, button, input {
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--color-text-primary);
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 6px 10px;
+    height: 36px;
+  }
+  button { cursor: pointer; transition: background 0.1s; }
+  button:hover { background: var(--color-background-secondary); }
+  button:active { transform: scale(0.98); }
+  select:focus, button:focus, input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--color-background-info);
+  }
+  .btn-hub { font-size: 12px; padding: 4px 10px; height: auto; cursor: pointer; }
+  .btn-hub.off { opacity: 0.45; }
+  .routing-row {
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .routing-row.protected { border-color: var(--color-border-success); }
+  .routing-row.unprotected { border-color: var(--color-border-warning); }
+  .badge-prot {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-prot.yes {
+    background: var(--color-background-success);
+    color: var(--color-text-success);
+  }
+  .badge-prot.no {
+    background: var(--color-background-warning);
+    color: var(--color-text-warning);
+  }
+  .footer-note {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 0.5px solid var(--color-border-tertiary);
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    line-height: 1.5;
+  }
+  .footer-note strong { color: var(--color-text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>B2B Aviation Coordination Platform — Interactive Simulator</h1>
+  <p class="subtitle">Supplementary digital material for Section 5.4. Toggle each design parameter to see how viable origin–destination pairs and protection coverage change in the stylised European network.</p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem;">
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <label style="font-size: 13px; color: var(--color-text-secondary);">Participation (5.2.1)</label>
+      <select id="participation">
+        <option value="NWC">NWCs only</option>
+        <option value="NWC+REG">NWCs + regionals</option>
+        <option value="NWC+REG+LCC" selected>NWCs + regionals + LCCs</option>
+      </select>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <label style="font-size: 13px; color: var(--color-text-secondary);">Protection scope (5.2.2/5.2.3)</label>
+      <select id="scope">
+        <option value="alliance">Alliance only</option>
+        <option value="platform" selected>All platform participants</option>
+      </select>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <label style="font-size: 13px; color: var(--color-text-secondary);">Anchor NWCs on platform (C1)</label>
+      <select id="anchors">
+        <option value="1">1 of 4</option>
+        <option value="2">2 of 4</option>
+        <option value="4" selected>4 of 4</option>
+      </select>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <label style="font-size: 13px; color: var(--color-text-secondary);">Hub participation (C4)</label>
+      <div id="hub-toggles" style="display: flex; gap: 4px; flex-wrap: wrap; padding-top: 4px;"></div>
+    </div>
+  </div>
+
+  <div id="metrics" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 1.5rem;"></div>
+
+  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem;">
+    <div style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px;">Hub utilisation (% of connecting traffic)</div>
+    <div id="hubs" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;"></div>
+  </div>
+
+  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem;">
+    <div style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px;">Sample route — does the platform serve it?</div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+      <select id="origin" style="flex: 1;"></select>
+      <span style="color: var(--color-text-tertiary);">→</span>
+      <select id="dest" style="flex: 1;"></select>
+    </div>
+    <div id="route-summary" style="font-size: 14px; line-height: 1.6; margin-bottom: 8px;"></div>
+    <div id="route-details"></div>
+  </div>
+
+  <div style="margin-top: 1rem; font-size: 12px; color: var(--color-text-tertiary); line-height: 1.5;">
+    Reset: <button id="reset" style="font-size: 12px; padding: 4px 10px; height: auto; cursor: pointer;">restore defaults (full open, all hubs)</button>
+  </div>
+
+  <div class="footer-note">
+    <strong>Stylised network.</strong> 5 hubs (FRA, AMS, CDG, MAD, MUC), 48 European spokes, 18 long-haul destinations. 4 NWCs anchored to their actual hubs and alliances; 3 LCCs (Ryanair-, easyJet-, Wizz Air-style); 2 regional carriers feeding alliance hubs. Strict viability rule: an OD pair is counted as viable only when both legs are operated by carriers on the platform. Long-haul routes are operated only by NWCs. Route inventories are stylised patterns reflecting documented carrier archetypes; individual routes were not validated against published schedules.
+  </div>
+</div>
+
+<script>
+const HUBS = {FRA:[8.57,50.03],AMS:[4.76,52.31],CDG:[2.55,49.01],MAD:[-3.57,40.47],MUC:[11.79,48.35]};
+const SPOKES = {BCN:[2.07,41.30],LIS:[-9.14,38.78],SVQ:[-5.90,37.42],VLC:[-0.48,39.49],BIO:[-2.91,43.30],AGP:[-4.50,36.67],LYS:[5.09,45.72],MRS:[5.22,43.44],NCE:[7.21,43.66],BOD:[-0.72,44.83],TLS:[1.37,43.63],NTE:[-1.60,47.16],LHR:[-0.46,51.48],MAN:[-2.27,53.35],DUB:[-6.27,53.43],EDI:[-3.37,55.95],BRS:[-2.72,51.38],BRU:[4.48,50.90],DUS:[6.77,51.29],HAM:[10.00,53.63],BER:[13.40,52.55],STR:[7.63,48.54],NUE:[11.07,49.50],VIE:[16.57,48.11],ZRH:[8.55,47.46],GVA:[6.10,46.24],PRG:[14.26,50.10],CPH:[12.66,55.62],ARN:[17.92,59.65],OSL:[11.10,60.20],HEL:[24.96,60.32],RIG:[23.97,56.92],TLL:[24.83,59.41],FCO:[12.25,41.80],MXP:[8.72,45.63],VCE:[12.35,45.51],NAP:[14.29,40.89],PMO:[13.09,38.18],WAW:[20.97,52.17],BUD:[19.26,47.44],OTP:[26.10,44.57],SOF:[23.41,42.70],ATH:[23.94,37.94],IST:[28.82,41.28],LPA:[-15.39,27.93],TFN:[-16.57,28.48],CMN:[-7.59,33.37],RAK:[-8.03,31.61]};
+const LH_DEST = {JFK:[-73.78,40.64],EWR:[-74.17,40.69],ORD:[-87.90,41.97],IAD:[-77.46,38.95],LAX:[-118.41,33.94],IAH:[-95.34,29.99],MEX:[-99.07,19.44],GRU:[-46.47,-23.43],GIG:[-43.25,-22.81],EZE:[-58.54,-34.82],LIM:[-77.11,-12.02],BOG:[-74.14,4.70],MIA:[-80.29,25.79],NRT:[140.39,35.77],PVG:[121.81,31.14],BKK:[100.75,13.69],LOS:[3.32,6.58],JNB:[28.24,-26.13]};
+const ALL = Object.assign({}, HUBS, SPOKES, LH_DEST);
+const LH_AIRPORTS = new Set(Object.keys(LH_DEST));
+
+const ALLIANCE = {LH:'Star',KL:'SkyTeam',AF:'SkyTeam',IB:'oneworld',FR:null,U2:null,W6:null,OE:null,RR:null};
+const FULL_NAME = {LH:'Lufthansa',KL:'KLM',AF:'Air France',IB:'Iberia',FR:'Ryanair',U2:'easyJet',W6:'Wizz Air',OE:'Lufthansa Regional',RR:'KLM/AF Regional'};
+
+const ROUTES = {
+  LH: [['FRA','HAM',6],['FRA','BER',6],['FRA','DUS',5],['FRA','MAN',4],['FRA','LHR',5],['FRA','VIE',4],['FRA','PRG',4],['FRA','WAW',3],['FRA','FCO',4],['FRA','ATH',3],['FRA','IST',3],['FRA','ZRH',5],['MUC','VIE',6],['MUC','ZRH',5],['MUC','FCO',4],['MUC','MXP',4],['MUC','PRG',4],['MUC','BUD',3],['MUC','ATH',3],['MUC','LHR',4],['MUC','BER',5],['MUC','HAM',5],['MUC','CPH',3],['MUC','ARN',2],['FRA','JFK',2],['FRA','EWR',2],['FRA','ORD',2],['FRA','IAD',1],['FRA','GRU',1],['FRA','NRT',1],['FRA','PVG',1],['FRA','BKK',1],['FRA','LOS',1],['FRA','JNB',1],['MUC','JFK',1],['MUC','ORD',1],['MUC','GRU',1],['MUC','BKK',1]],
+  KL: [['AMS','LHR',6],['AMS','MAN',4],['AMS','DUB',4],['AMS','CPH',4],['AMS','OSL',3],['AMS','ARN',3],['AMS','HEL',3],['AMS','FCO',4],['AMS','BCN',4],['AMS','MAD',4],['AMS','LIS',3],['AMS','ATH',3],['AMS','WAW',3],['AMS','BUD',3],['AMS','IST',3],['AMS','OTP',2],['AMS','JFK',2],['AMS','IAH',1],['AMS','GRU',1],['AMS','NRT',1],['AMS','JNB',1],['AMS','GIG',1]],
+  AF: [['CDG','LHR',7],['CDG','MAN',4],['CDG','DUB',4],['CDG','LYS',8],['CDG','MRS',6],['CDG','NCE',6],['CDG','BOD',5],['CDG','TLS',5],['CDG','NTE',5],['CDG','FCO',4],['CDG','BCN',5],['CDG','MAD',5],['CDG','LIS',4],['CDG','ATH',3],['CDG','IST',3],['CDG','CMN',3],['CDG','JFK',2],['CDG','LAX',1],['CDG','GRU',1],['CDG','NRT',1],['CDG','PVG',1],['CDG','JNB',1],['CDG','LOS',1],['CDG','MEX',1]],
+  IB: [['MAD','BCN',8],['MAD','SVQ',7],['MAD','VLC',6],['MAD','BIO',5],['MAD','AGP',5],['MAD','LPA',4],['MAD','TFN',4],['MAD','LIS',4],['MAD','LHR',5],['MAD','LYS',3],['MAD','FCO',3],['MAD','CMN',3],['MAD','RAK',2],['MAD','CDG',5],['MAD','FRA',3],['MAD','JFK',1],['MAD','MIA',1],['MAD','GRU',1],['MAD','EZE',1],['MAD','LIM',1],['MAD','BOG',1],['MAD','MEX',1]],
+  FR: [['LHR','BCN',5],['LHR','MAD',4],['LHR','SVQ',3],['LHR','AGP',3],['LHR','FCO',4],['LHR','PMO',3],['LHR','OTP',3],['LHR','WAW',4],['LHR','BUD',3],['LHR','SOF',3],['LHR','RIG',3],['LHR','TLL',2],['DUB','BCN',4],['DUB','MAD',4],['DUB','FCO',3],['DUB','AGP',3],['DUB','LPA',2],['DUB','MRS',2],['DUB','VLC',2],['MAN','AGP',3],['MAN','TFN',2],['MAN','BCN',3],['MAN','FCO',3],['MAN','OTP',2],['MAN','WAW',3],['BRS','BCN',3],['BRS','AGP',3]],
+  U2: [['LHR','NCE',5],['LHR','GVA',5],['LHR','LYS',4],['LHR','MRS',4],['LHR','BOD',3],['LHR','TLS',3],['LHR','VCE',3],['LHR','FCO',4],['LHR','MXP',4],['LHR','NAP',3],['LHR','ATH',3],['LHR','CMN',2],['AMS','BCN',4],['AMS','NCE',3],['AMS','LYS',3],['AMS','GVA',3],['CDG','NCE',6],['CDG','GVA',5],['CDG','MRS',5],['CDG','LYS',5],['FRA','LHR',3],['FRA','BCN',3],['FRA','NCE',3],['MUC','LHR',3],['MUC','BCN',3]],
+  W6: [['BUD','LHR',5],['BUD','BCN',3],['BUD','FCO',3],['BUD','MAD',2],['BUD','CDG',3],['BUD','AMS',2],['BUD','MXP',3],['BUD','AGP',2],['BUD','CMN',1],['WAW','LHR',5],['WAW','BCN',3],['WAW','FCO',3],['WAW','CDG',3],['WAW','AMS',2],['WAW','MXP',2],['WAW','AGP',2],['OTP','LHR',4],['OTP','BCN',3],['OTP','FCO',3],['OTP','MAD',2],['OTP','CDG',2],['OTP','AGP',2],['OTP','VLC',1],['SOF','LHR',3],['SOF','FCO',2],['SOF','BCN',2],['SOF','CDG',2]],
+  OE: [['FRA','STR',4],['FRA','NUE',4],['FRA','GVA',4],['MUC','STR',4],['MUC','NUE',4],['MUC','GVA',3],['FRA','BRU',4],['FRA','EDI',3],['MUC','VCE',4],['MUC','PMO',3],['FRA','LYS',3],['MUC','NAP',3]],
+  RR: [['AMS','EDI',4],['AMS','BRS',3],['AMS','STR',3],['AMS','NUE',3],['CDG','BRS',4],['CDG','EDI',3],['CDG','STR',3],['CDG','RIG',2],['AMS','SOF',2],['CDG','SOF',2]]
+};
+
+const TYPE = {LH:'NWC',KL:'NWC',AF:'NWC',IB:'NWC',FR:'LCC',U2:'LCC',W6:'LCC',OE:'REG',RR:'REG'};
+
+const EDGES = [];
+for (const [carrier, list] of Object.entries(ROUTES)) {
+  for (const [a, b, freq] of list) {
+    EDGES.push({u:a, v:b, carrier, type:TYPE[carrier], alliance:ALLIANCE[carrier], freq});
+    EDGES.push({u:b, v:a, carrier, type:TYPE[carrier], alliance:ALLIANCE[carrier], freq});
+  }
+}
+
+const EDGE_FROM = {};
+for (const e of EDGES) {
+  if (!EDGE_FROM[e.u]) EDGE_FROM[e.u] = [];
+  EDGE_FROM[e.u].push(e);
+}
+
+const AIRPORTS = Object.keys(ALL);
+const HUB_LIST = Object.keys(HUBS);
+const ALL_NWCS = ['AF','IB','KL','LH'];
+const activeHubs = new Set(HUB_LIST);
+
+function platformCarriers(participation, anchors) {
+  const set = new Set(ALL_NWCS.slice(0, anchors));
+  if (participation === 'NWC+REG' || participation === 'NWC+REG+LCC') {
+    set.add('OE'); set.add('RR');
+  }
+  if (participation === 'NWC+REG+LCC') {
+    set.add('FR'); set.add('U2'); set.add('W6');
+  }
+  return set;
+}
+
+function legsBetween(u, v) {
+  if (!EDGE_FROM[u]) return [];
+  return EDGE_FROM[u].filter(e => e.v === v);
+}
+
+function compute(params) {
+  const platSet = platformCarriers(params.participation, params.anchors);
+  const directPairs = new Set();
+  for (const e of EDGES) directPairs.add(e.u + '|' + e.v);
+
+  const viable = new Set();
+  const protOk = new Set();
+  const optionsPer = {};
+  const hubPax = {};
+  for (const h of HUB_LIST) hubPax[h] = 0;
+  const thinCovered = new Set();
+
+  for (const o of AIRPORTS) {
+    for (const d of AIRPORTS) {
+      if (o === d) continue;
+      if (HUB_LIST.includes(o) && HUB_LIST.includes(d)) continue;
+      const isThin = !directPairs.has(o + '|' + d);
+
+      for (const h of HUB_LIST) {
+        if (!params.hubs.has(h)) continue;
+        if (h === o || h === d) continue;
+        const conns = legsBetween(o, h).flatMap(l1 =>
+          legsBetween(h, d).map(l2 => [l1, l2])
+        );
+        const platConns = conns.filter(([l1, l2]) =>
+          platSet.has(l1.carrier) && platSet.has(l2.carrier));
+        if (!platConns.length) continue;
+
+        const carrierPairs = new Set(platConns.map(([l1,l2]) => l1.carrier+'|'+l2.carrier));
+        const key = o + '|' + d;
+        optionsPer[key] = (optionsPer[key] || 0) + carrierPairs.size;
+        viable.add(key);
+        if (isThin) thinCovered.add(key);
+        hubPax[h] += carrierPairs.size;
+
+        for (const [l1, l2] of platConns) {
+          let prot;
+          if (params.scope === 'alliance') {
+            prot = l1.alliance && l1.alliance === l2.alliance;
+          } else {
+            prot = true;
+          }
+          if (prot) {
+            protOk.add(key);
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  let thinBase = 0;
+  for (const o of AIRPORTS) {
+    for (const d of AIRPORTS) {
+      if (o === d) continue;
+      if (HUB_LIST.includes(o) && HUB_LIST.includes(d)) continue;
+      if (!directPairs.has(o + '|' + d)) thinBase++;
+    }
+  }
+
+  const optsArr = Object.values(optionsPer);
+  const avgOpts = optsArr.length ? optsArr.reduce((a,b)=>a+b,0)/optsArr.length : 0;
+  const totalHub = Object.values(hubPax).reduce((a,b)=>a+b, 0) || 1;
+  const hubPct = {};
+  for (const h of HUB_LIST) hubPct[h] = (hubPax[h]/totalHub*100);
+
+  return {
+    viable: viable.size,
+    avgOpts: avgOpts,
+    pctProt: viable.size ? (protOk.size/viable.size*100) : 0,
+    pctThin: thinBase ? (thinCovered.size/thinBase*100) : 0,
+    hubPct
+  };
+}
+
+function traceRoute(o, d, params) {
+  if (o === d) return {summary:'Pick two different airports.', routings:[]};
+  const platSet = platformCarriers(params.participation, params.anchors);
+
+  const direct = legsBetween(o, d);
+  if (direct.length) {
+    const carriers = [...new Set(direct.map(e => e.carrier))];
+    return {
+      summary: 'Direct flight available — operated by ' + carriers.map(c => FULL_NAME[c] + ' (' + c + ')').join(', ') + '. Direct routes don\'t need platform coordination.',
+      routings: []
+    };
+  }
+
+  const pairsByHub = new Map();
+  for (const h of HUB_LIST) {
+    if (!params.hubs.has(h)) continue;
+    if (h === o || h === d) continue;
+    const conns = legsBetween(o, h).flatMap(l1 =>
+      legsBetween(h, d).map(l2 => [l1, l2])
+    );
+    const platConns = conns.filter(([l1, l2]) =>
+      platSet.has(l1.carrier) && platSet.has(l2.carrier));
+    if (!platConns.length) continue;
+
+    for (const [l1, l2] of platConns) {
+      const key = h + '|' + l1.carrier + '|' + l2.carrier;
+      if (pairsByHub.has(key)) continue;
+      let prot;
+      if (params.scope === 'alliance') {
+        prot = l1.alliance && l1.alliance === l2.alliance;
+      } else {
+        prot = true;
+      }
+      pairsByHub.set(key, {
+        hub: h,
+        c1: l1.carrier,
+        c2: l2.carrier,
+        f1: l1.freq,
+        f2: l2.freq,
+        prot,
+        score: (l1.freq + l2.freq)
+      });
+    }
+  }
+
+  const routings = Array.from(pairsByHub.values());
+
+  if (!routings.length) {
+    let anyPhysical = false;
+    for (const h of HUB_LIST) {
+      if (h === o || h === d) continue;
+      if (legsBetween(o, h).length && legsBetween(h, d).length) anyPhysical = true;
+    }
+    if (anyPhysical) {
+      return {
+        summary: 'Physical 1-stop legs exist but no platform-eligible routing under current settings. Try widening Participation, raising Anchor NWCs, or enabling more hubs.',
+        routings: []
+      };
+    }
+    return {summary: 'No 1-stop routing exists in this stylized network.', routings: []};
+  }
+
+  routings.sort((a,b) => (b.prot - a.prot) || (b.score - a.score) || a.hub.localeCompare(b.hub));
+
+  const protCount = routings.filter(r => r.prot).length;
+  const summary = '<strong>' + routings.length + ' routing option' + (routings.length>1?'s':'') + ' found</strong> — ' + protCount + ' protected, ' + (routings.length - protCount) + ' unprotected. Showing all options below, sorted by protected status and combined frequency.';
+
+  return {summary, routings};
+}
+
+function metricCard(label, value, sub) {
+  return '<div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem;">' +
+    '<div style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px;">' + label + '</div>' +
+    '<div style="font-size: 24px; font-weight: 500;">' + value + '</div>' +
+    (sub ? '<div style="font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px;">' + sub + '</div>' : '') +
+    '</div>';
+}
+
+function renderHubToggles() {
+  const wrap = document.getElementById('hub-toggles');
+  wrap.innerHTML = HUB_LIST.map(h => {
+    const on = activeHubs.has(h);
+    const style = on
+      ? 'background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info);'
+      : '';
+    return '<button class="btn-hub' + (on ? '' : ' off') + '" data-hub="' + h + '" style="' + style + '">' + h + '</button>';
+  }).join('');
+  wrap.querySelectorAll('.btn-hub').forEach(b => {
+    b.addEventListener('click', () => {
+      const h = b.dataset.hub;
+      if (activeHubs.has(h)) activeHubs.delete(h); else activeHubs.add(h);
+      renderHubToggles();
+      render();
+    });
+  });
+}
+
+function render() {
+  const params = {
+    participation: document.getElementById('participation').value,
+    scope: document.getElementById('scope').value,
+    anchors: parseInt(document.getElementById('anchors').value, 10),
+    hubs: activeHubs
+  };
+  const r = compute(params);
+
+  document.getElementById('metrics').innerHTML = [
+    metricCard('Viable OD pairs', Math.round(r.viable), '1-stop reachable'),
+    metricCard('Avg options / OD', r.avgOpts.toFixed(2), 'carrier-pair routes'),
+    metricCard('% protected', r.pctProt.toFixed(1) + '%', 'has guaranteed transfer'),
+    metricCard('% thin covered', r.pctThin.toFixed(1) + '%', 'no-direct routes served')
+  ].join('');
+
+  document.getElementById('hubs').innerHTML = HUB_LIST.map(h => {
+    const active = activeHubs.has(h);
+    return '<div style="text-align: center; ' + (active ? '' : 'opacity: 0.35;') + '">' +
+      '<div style="font-size: 12px; color: var(--color-text-tertiary);">' + h + (active ? '' : ' (off)') + '</div>' +
+      '<div style="font-size: 16px; font-weight: 500;">' + r.hubPct[h].toFixed(1) + '%</div>' +
+      '</div>';
+  }).join('');
+
+  const o = document.getElementById('origin').value;
+  const d = document.getElementById('dest').value;
+  const trace = traceRoute(o, d, params);
+  document.getElementById('route-summary').innerHTML = trace.summary;
+
+  const detailsEl = document.getElementById('route-details');
+  if (!trace.routings.length) {
+    detailsEl.innerHTML = '';
+  } else {
+    detailsEl.innerHTML = trace.routings.map((r, i) => {
+      const isQuickest = i === 0;
+      const protBadge = r.prot
+        ? '<span class="badge-prot yes">protected</span>'
+        : '<span class="badge-prot no">not protected</span>';
+      const quickestLabel = isQuickest ? '<span style="font-size:11px; color: var(--color-text-secondary); margin-right:6px;">[recommended]</span>' : '';
+      return '<div class="routing-row ' + (r.prot ? 'protected' : 'unprotected') + '" style="display:flex; justify-content:space-between; align-items:center; gap: 12px;">' +
+        '<div>' +
+          quickestLabel + '<strong>' + o + ' \u2192 ' + r.hub + ' \u2192 ' + d + '</strong> via ' + FULL_NAME[r.c1] + ' (' + r.c1 + ') + ' + FULL_NAME[r.c2] + ' (' + r.c2 + ')' +
+          '<span style="color: var(--color-text-tertiary); margin-left: 8px;">freq: ' + r.f1 + '/d + ' + r.f2 + '/d</span>' +
+        '</div>' +
+        protBadge +
+      '</div>';
+    }).join('');
+  }
+}
+
+const sortedAirports = [...AIRPORTS].sort();
+const originSel = document.getElementById('origin');
+const destSel = document.getElementById('dest');
+for (const a of sortedAirports) {
+  const lhTag = LH_AIRPORTS.has(a) ? ' (long-haul)' : '';
+  originSel.innerHTML += '<option value="' + a + '">' + a + lhTag + '</option>';
+  destSel.innerHTML += '<option value="' + a + '">' + a + lhTag + '</option>';
+}
+originSel.value = 'NCE';
+destSel.value = 'EWR';
+
+['participation','scope','anchors','origin','dest'].forEach(id => {
+  document.getElementById(id).addEventListener('change', render);
+});
+
+document.getElementById('reset').addEventListener('click', () => {
+  document.getElementById('participation').value = 'NWC+REG+LCC';
+  document.getElementById('scope').value = 'platform';
+  document.getElementById('anchors').value = '4';
+  activeHubs.clear();
+  HUB_LIST.forEach(h => activeHubs.add(h));
+  originSel.value = 'NCE';
+  destSel.value = 'EWR';
+  renderHubToggles();
+  render();
+});
+
+renderHubToggles();
+render();
+</script>
+</body>
+</html>
