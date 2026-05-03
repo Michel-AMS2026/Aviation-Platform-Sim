@@ -182,7 +182,7 @@
   </div>
 
   <div class="footer-note">
-    <strong>Stylised network.</strong> 5 hubs (FRA, AMS, CDG, MAD, MUC), 48 European spokes, 18 long-haul destinations. 4 NWCs anchored to their actual hubs and alliances; 3 LCCs (Ryanair-, easyJet-, Vueling-style); 2 regional carriers feeding alliance hubs. Strict viability rule: an OD pair is counted as viable only when both legs are operated by carriers on the platform. Long-haul routes are operated only by NWCs. Route inventories are stylised patterns reflecting documented carrier archetypes; individual routes were not validated against published schedules.
+    <strong>Stylised network.</strong> 5 hubs (FRA, AMS, CDG, MAD, MUC), 48 European spokes, 18 long-haul destinations. 4 NWCs anchored to their actual hubs and alliances; 3 LCCs (Ryanair-, easyJet-, Wizz Air-style); 2 regional carriers feeding alliance hubs. Strict viability rule: an OD pair is counted as viable only when both legs are operated by carriers on the platform. Long-haul routes are operated only by NWCs. Route inventories are stylised patterns reflecting documented carrier archetypes; individual routes were not validated against published schedules.
   </div>
 </div>
 
@@ -193,8 +193,8 @@ const LH_DEST = {JFK:[-73.78,40.64],EWR:[-74.17,40.69],ORD:[-87.90,41.97],IAD:[-
 const ALL = Object.assign({}, HUBS, SPOKES, LH_DEST);
 const LH_AIRPORTS = new Set(Object.keys(LH_DEST));
 
-const ALLIANCE = {LH:'Star',KL:'SkyTeam',AF:'SkyTeam',IB:'oneworld',FR:null,U2:null,VY:null,OE:null,RR:null};
-const FULL_NAME = {LH:'Lufthansa',KL:'KLM',AF:'Air France',IB:'Iberia',FR:'Ryanair',U2:'easyJet',VY:'Vueling',OE:'Lufthansa Regional',RR:'KLM/AF Regional'};
+const ALLIANCE = {LH:'Star',KL:'SkyTeam',AF:'SkyTeam',IB:'oneworld',FR:null,U2:null,W6:null,OE:null,RR:null};
+const FULL_NAME = {LH:'Lufthansa',KL:'KLM',AF:'Air France',IB:'Iberia',FR:'Ryanair',U2:'easyJet',W6:'Wizz Air',OE:'Lufthansa Regional',RR:'KLM/AF Regional'};
 
 const ROUTES = {
   LH: [['FRA','HAM',6],['FRA','BER',6],['FRA','DUS',5],['FRA','MAN',4],['FRA','LHR',5],['FRA','VIE',4],['FRA','PRG',4],['FRA','WAW',3],['FRA','FCO',4],['FRA','ATH',3],['FRA','IST',3],['FRA','ZRH',5],['MUC','VIE',6],['MUC','ZRH',5],['MUC','FCO',4],['MUC','MXP',4],['MUC','PRG',4],['MUC','BUD',3],['MUC','ATH',3],['MUC','LHR',4],['MUC','BER',5],['MUC','HAM',5],['MUC','CPH',3],['MUC','ARN',2],['FRA','JFK',2],['FRA','EWR',2],['FRA','ORD',2],['FRA','IAD',1],['FRA','GRU',1],['FRA','NRT',1],['FRA','PVG',1],['FRA','BKK',1],['FRA','LOS',1],['FRA','JNB',1],['MUC','JFK',1],['MUC','ORD',1],['MUC','GRU',1],['MUC','BKK',1]],
@@ -203,12 +203,12 @@ const ROUTES = {
   IB: [['MAD','BCN',8],['MAD','SVQ',7],['MAD','VLC',6],['MAD','BIO',5],['MAD','AGP',5],['MAD','LPA',4],['MAD','TFN',4],['MAD','LIS',4],['MAD','LHR',5],['MAD','LYS',3],['MAD','FCO',3],['MAD','CMN',3],['MAD','RAK',2],['MAD','CDG',5],['MAD','FRA',3],['MAD','JFK',1],['MAD','MIA',1],['MAD','GRU',1],['MAD','EZE',1],['MAD','LIM',1],['MAD','BOG',1],['MAD','MEX',1]],
   FR: [['LHR','BCN',5],['LHR','MAD',4],['LHR','SVQ',3],['LHR','AGP',3],['LHR','FCO',4],['LHR','PMO',3],['LHR','OTP',3],['LHR','WAW',4],['LHR','BUD',3],['LHR','SOF',3],['LHR','RIG',3],['LHR','TLL',2],['DUB','BCN',4],['DUB','MAD',4],['DUB','FCO',3],['DUB','AGP',3],['DUB','LPA',2],['DUB','MRS',2],['DUB','VLC',2],['MAN','AGP',3],['MAN','TFN',2],['MAN','BCN',3],['MAN','FCO',3],['MAN','OTP',2],['MAN','WAW',3],['BRS','BCN',3],['BRS','AGP',3]],
   U2: [['LHR','NCE',5],['LHR','GVA',5],['LHR','LYS',4],['LHR','MRS',4],['LHR','BOD',3],['LHR','TLS',3],['LHR','VCE',3],['LHR','FCO',4],['LHR','MXP',4],['LHR','NAP',3],['LHR','ATH',3],['LHR','CMN',2],['AMS','BCN',4],['AMS','NCE',3],['AMS','LYS',3],['AMS','GVA',3],['CDG','NCE',6],['CDG','GVA',5],['CDG','MRS',5],['CDG','LYS',5],['FRA','LHR',3],['FRA','BCN',3],['FRA','NCE',3],['MUC','LHR',3],['MUC','BCN',3]],
-  VY: [['BCN','MAD',10],['BCN','SVQ',6],['BCN','VLC',5],['BCN','BIO',4],['BCN','AGP',4],['BCN','LPA',3],['BCN','TFN',3],['BCN','LHR',4],['BCN','CDG',4],['BCN','AMS',3],['BCN','FRA',3],['BCN','FCO',3],['BCN','MXP',3],['BCN','GVA',3],['BCN','ATH',2],['BCN','CMN',3],['SVQ','MAD',5],['SVQ','BCN',5],['SVQ','LPA',3],['SVQ','LHR',3],['VLC','MAD',5],['VLC','BCN',5],['AGP','LHR',3],['MAD','MRS',3],['MAD','BOD',2]],
+  W6: [['BUD','LHR',5],['BUD','BCN',3],['BUD','FCO',3],['BUD','MAD',2],['BUD','CDG',3],['BUD','AMS',2],['BUD','MXP',3],['BUD','AGP',2],['BUD','CMN',1],['WAW','LHR',5],['WAW','BCN',3],['WAW','FCO',3],['WAW','CDG',3],['WAW','AMS',2],['WAW','MXP',2],['WAW','AGP',2],['OTP','LHR',4],['OTP','BCN',3],['OTP','FCO',3],['OTP','MAD',2],['OTP','CDG',2],['OTP','AGP',2],['OTP','VLC',1],['SOF','LHR',3],['SOF','FCO',2],['SOF','BCN',2],['SOF','CDG',2]],
   OE: [['FRA','STR',4],['FRA','NUE',4],['FRA','GVA',4],['MUC','STR',4],['MUC','NUE',4],['MUC','GVA',3],['FRA','BRU',4],['FRA','EDI',3],['MUC','VCE',4],['MUC','PMO',3],['FRA','LYS',3],['MUC','NAP',3]],
   RR: [['AMS','EDI',4],['AMS','BRS',3],['AMS','STR',3],['AMS','NUE',3],['CDG','BRS',4],['CDG','EDI',3],['CDG','STR',3],['CDG','RIG',2],['AMS','SOF',2],['CDG','SOF',2]]
 };
 
-const TYPE = {LH:'NWC',KL:'NWC',AF:'NWC',IB:'NWC',FR:'LCC',U2:'LCC',VY:'LCC',OE:'REG',RR:'REG'};
+const TYPE = {LH:'NWC',KL:'NWC',AF:'NWC',IB:'NWC',FR:'LCC',U2:'LCC',W6:'LCC',OE:'REG',RR:'REG'};
 
 const EDGES = [];
 for (const [carrier, list] of Object.entries(ROUTES)) {
@@ -235,7 +235,7 @@ function platformCarriers(participation, anchors) {
     set.add('OE'); set.add('RR');
   }
   if (participation === 'NWC+REG+LCC') {
-    set.add('FR'); set.add('U2'); set.add('VY');
+    set.add('FR'); set.add('U2'); set.add('W6');
   }
   return set;
 }
